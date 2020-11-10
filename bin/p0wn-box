@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+function get_container_id() {
+    DOCKER_ID=$(docker ps | grep p0wn-box | awk '{print $1}')
+}
+
+function exec_bash() {
+    docker exec -it $DOCKER_ID /docker-entrypoint.sh /usr/bin/fish 
+}
+
+get_container_id
+
+if test $DOCKER_ID; then
+    exec_bash
+else
+    # For openvpn add:
+    #  - --cap-add=NET_ADMIN
+    docker run -d -p 0.0.0.0:9990-9999:9990-9999  -p 0.0.0.0:8834:8834 -v ~/shared/p0wn-box/:/tmp/data -it p0wn-box:latest
+    get_container_id
+    exec_bash
+fi
